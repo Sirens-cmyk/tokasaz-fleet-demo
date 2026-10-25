@@ -1,0 +1,666 @@
+```html
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سامانه جامع مدیریت تعمیرگاه و ناوگان - توکاساز / فولاد مبارکه</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Vazirmatn Font -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Vazirmatn', 'sans-serif'],
+                    },
+                    colors: {
+                        steel: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        },
+                        navy: {
+                            800: '#1e3a8a',
+                            900: '#1e293b',
+                        },
+                        industrial: {
+                            orange: '#f59e0b',
+                            orangeHover: '#d97706',
+                            red: '#ef4444',
+                            green: '#10b981',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: #f1f5f9;
+        }
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        .tab-active {
+            background-color: #ffffff !important;
+            color: #1e3a8a !important;
+            border-bottom: 3px solid #f59e0b !important;
+            font-weight: 700 !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 flex flex-col min-h-screen">
+
+    <!-- Top Header / هدر اصلی سازمانی -->
+    <header class="bg-slate-900 text-white shadow-lg border-b-4 border-amber-500 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                
+                <!-- Logo & Title -->
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <div class="bg-amber-500 text-slate-900 p-2 rounded-lg font-black text-xl flex items-center justify-center w-10 h-10 shadow-md">
+                        <i class="fa-solid font-bold fa-truck-monster"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-base sm:text-lg text-white leading-tight">سامانه جامع مدیریت تعمیرگاه و ناوگان</h1>
+                        <p class="text-xs text-slate-400">شرکت توکاساز | مجتمع فولاد مبارکه اصفهان</p>
+                    </div>
+                </div>
+
+                <!-- Status & User Info -->
+                <div class="hidden md:flex items-center space-x-6 space-x-reverse text-xs">
+                    <div class="flex items-center bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
+                        <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse ml-2"></span>
+                        <span class="text-slate-300">وضعیت سرور مرکزی: <strong class="text-emerald-400">برقرار</strong></span>
+                    </div>
+
+                    <div class="text-slate-300 flex items-center space-x-1 space-x-reverse">
+                        <i class="fa-regular fa-clock text-amber-400 ml-1"></i>
+                        <span id="live-time">۱۴۰۵/۰۸/۰۴ - ۱۴:۳۰</span>
+                    </div>
+
+                    <!-- User Profile -->
+                    <div class="flex items-center space-x-3 space-x-reverse border-r border-slate-700 pr-4">
+                        <div class="text-left">
+                            <div class="font-bold text-sm text-slate-200">مهندس رضایی</div>
+                            <div class="text-[10px] text-amber-400">مدیر ارشد فنی و پشتیبانی</div>
+                        </div>
+                        <div class="w-9 h-9 rounded-full bg-blue-700 border-2 border-amber-500 flex items-center justify-center font-bold text-white shadow">
+                            م‌ر
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- Top Navigation Bar / نوار تب‌های اصلی سیستم -->
+    <nav class="bg-blue-900 text-white shadow-md border-b border-blue-950 sticky top-16 z-40">
+        <div class="max-w-7xl mx-auto px-2 sm:px-4">
+            <div class="flex items-center space-x-1 space-x-reverse overflow-x-auto no-scrollbar py-1" id="tab-container">
+                <button onclick="switchTab('tab-maintenance', this)" class="tab-button tab-active whitespace-nowrap px-4 py-2.5 rounded-t-md text-xs sm:text-sm font-medium transition-all duration-150 flex items-center gap-2">
+                    <i class="fa-solid fa-wrench"></i> پذیرش و تعمیرگاه
+                </button>
+                <button onclick="switchTab('tab-inventory', this)" class="tab-button whitespace-nowrap px-4 py-2.5 rounded-t-md text-xs sm:text-sm font-medium hover:bg-blue-800 transition-all duration-150 flex items-center gap-2">
+                    <i class="fa-solid fa-boxes-stacked"></i> انبار قطعات
+                </button>
+                <button onclick="switchTab('tab-fleet', this)" class="tab-button whitespace-nowrap px-4 py-2.5 rounded-t-md text-xs sm:text-sm font-medium hover:bg-blue-800 transition-all duration-150 flex items-center gap-2">
+                    <i class="fa-solid fa-truck-ramp-box"></i> ناوگان خودرویی
+                </button>
+                <button onclick="switchTab('tab-fuel', this)" class="tab-button whitespace-nowrap px-4 py-2.5 rounded-t-md text-xs sm:text-sm font-medium hover:bg-blue-800 transition-all duration-150 flex items-center gap-2">
+                    <i class="fa-solid fa-gas-pump"></i> جایگاه سوخت
+                </button>
+                <button onclick="switchTab('tab-ev', this)" class="tab-button whitespace-nowrap px-4 py-2.5 rounded-t-md text-xs sm:text-sm font-medium hover:bg-blue-800 transition-all duration-150 flex items-center gap-2">
+                    <i class="fa-solid fa-charging-station"></i> ایستگاه شارژ برقی
+                </button>
+                <button onclick="switchTab('tab-drivers', this)" class="tab-button whitespace-nowrap px-4 py-2.5 rounded-t-md text-xs sm:text-sm font-medium hover:bg-blue-800 transition-all duration-150 flex items-center gap-2">
+                    <i class="fa-solid fa-user-tie"></i> رانندگان و تشریفات
+                </button>
+                <button onclick="switchTab('tab-personal', this)" class="tab-button whitespace-nowrap px-4 py-2.5 rounded-t-md text-xs sm:text-sm font-medium hover:bg-blue-800 transition-all duration-150 flex items-center gap-2">
+                    <i class="fa-solid fa-car-side"></i> خدمات شخصی
+                </button>
+                <button onclick="switchTab('tab-financial', this)" class="tab-button whitespace-nowrap px-4 py-2.5 rounded-t-md text-xs sm:text-sm font-medium hover:bg-blue-800 transition-all duration-150 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-line"></i> گزارشات و مالی
+                </button>
+                <button onclick="switchTab('tab-users', this)" class="tab-button whitespace-nowrap px-4 py-2.5 rounded-t-md text-xs sm:text-sm font-medium hover:bg-blue-800 transition-all duration-150 flex items-center gap-2">
+                    <i class="fa-solid fa-users-gear"></i> مدیریت کاربران
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container / محتوای اصلی -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6">
+        
+        <!-- Summary KPI Metrics / کارت‌های شاخص‌های اصلی -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-lg shadow-sm border-r-4 border-blue-600 flex flex-col justify-between">
+                <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                    <span>خودروهای فعال در سایت</span>
+                    <i class="fa-solid fa-truck text-blue-600 text-base"></i>
+                </div>
+                <div class="mt-2 flex items-baseline justify-between">
+                    <span class="text-2xl font-black text-slate-800">۱۴۲</span>
+                    <span class="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">٪۹۸ آماده</span>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg shadow-sm border-r-4 border-amber-500 flex flex-col justify-between">
+                <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                    <span>پذیرش‌های در حال تعمیر</span>
+                    <i class="fa-solid fa-screwdriver-wrench text-amber-500 text-base"></i>
+                </div>
+                <div class="mt-2 flex items-baseline justify-between">
+                    <span class="text-2xl font-black text-slate-800">۱۸</span>
+                    <span class="text-[10px] text-amber-600 font-bold bg-amber-50 px-1.5 py-0.5 rounded">۴ فوری</span>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg shadow-sm border-r-4 border-red-500 flex flex-col justify-between">
+                <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                    <span>هشدار کسر انبار قطعات</span>
+                    <i class="fa-solid fa-triangle-exclamation text-red-500 text-base"></i>
+                </div>
+                <div class="mt-2 flex items-baseline justify-between">
+                    <span class="text-2xl font-black text-slate-800">۶</span>
+                    <span class="text-[10px] text-red-600 font-bold bg-red-50 px-1.5 py-0.5 rounded">نیازمند خرید</span>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg shadow-sm border-r-4 border-emerald-500 flex flex-col justify-between">
+                <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                    <span>مصرف روزانه سوخت (لیتر)</span>
+                    <i class="fa-solid fa-gas-pump text-emerald-500 text-base"></i>
+                </div>
+                <div class="mt-2 flex items-baseline justify-between">
+                    <span class="text-2xl font-black text-slate-800">۳,۴۵۰</span>
+                    <span class="text-[10px] text-slate-500 font-bold">مخزن: ٪۸۲</span>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg shadow-sm border-r-4 border-purple-500 flex flex-col justify-between col-span-2 md:col-span-1">
+                <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                    <span>ایستگاه‌های شارژ برقی</span>
+                    <i class="fa-solid fa-bolt text-purple-500 text-base"></i>
+                </div>
+                <div class="mt-2 flex items-baseline justify-between">
+                    <span class="text-2xl font-black text-slate-800">۸/۱۰</span>
+                    <span class="text-[10px] text-purple-600 font-bold bg-purple-50 px-1.5 py-0.5 rounded">فعال و برخط</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Tab Views / محتوای پویای تب‌ها -->
+        
+        <!-- 1. TAB: MAINTENANCE (پذیرش و تعمیرگاه) -->
+        <div id="tab-maintenance" class="tab-content space-y-6">
+            
+            <!-- Quick Data Entry Form / فرم ثبت سفارش کار جدید -->
+            <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-slate-50 px-5 py-3 border-b border-slate-200 flex items-center justify-between">
+                    <h2 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-plus-circle text-amber-500"></i>
+                        ثبت پذیرش جدید در تعمیرگاه مرکزی
+                    </h2>
+                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-medium">ماژول فعال تعمیرگاه</span>
+                </div>
+                
+                <form id="new-workorder-form" onsubmit="handleFormSubmit(event)" class="p-5">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">نوع و شناسه خودرو:</label>
+                            <select id="vehicle-type" required class="w-full text-xs p-2.5 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                                <option value="">انتخاب کنید...</option>
+                                <option value="کمپرسی ده چرخ">کمپرسی ده چرخ (پلاک ۱۲ ع ۳۴)</option>
+                                <option value="جرثقیل ۵۰ تن">جرثقیل ۵۰ تن (شناسه EQ-104)</option>
+                                <option value="لیفتراک ۵ تن">لیفتراک ۵ تن (شناسه LF-88)</option>
+                                <option value="تویوتا هایلوکس تشریفات">تویوتا هایلوکس تشریفات (پلاک ۶۸ ط ۱۱)</option>
+                                <option value="اتوبوس سرویس پرسنل">اتوبوس سرویس پرسنل (پلاک ۴۴ ج ۹۹)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">واحد درخواست‌کننده:</label>
+                            <select id="department" required class="w-full text-xs p-2.5 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                                <option value="">انتخاب واحد...</option>
+                                <option value="خط نورد گرم">خط نورد گرم</option>
+                                <option value="حمل و نقل سنگین">حمل و نقل سنگین</option>
+                                <option value="تشریفات و مدیریت">تشریفات و مدیریت</option>
+                                <option value="انبار مواد اولیه">انبار مواد اولیه</option>
+                                <option value="خدمات فنی کارخانه">خدمات فنی کارخانه</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">نوع سرویس / خدمات:</label>
+                            <input type="text" id="service-type" placeholder="مثال: تعویض روغن و سرویس ترمز" required class="w-full text-xs p-2.5 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">نام راننده / تحویل‌دهنده:</label>
+                            <input type="text" id="driver-name" placeholder="نام و نام خانوادگی..." required class="w-full text-xs p-2.5 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        </div>
+
+                        <div class="md:col-span-3">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">توضیحات ایراد و قطعات درخواستی:</label>
+                            <input type="text" id="description" placeholder="شرح نقص فنی یا قطعات مورد نیاز انبار..." class="w-full text-xs p-2.5 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        </div>
+
+                        <div class="flex items-end gap-2">
+                            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 px-4 rounded-md shadow transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-check"></i> ثبت پذیرش نهایی
+                            </button>
+                            <button type="button" onclick="exportToExcel()" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold text-xs py-2.5 px-3 rounded-md transition flex items-center justify-center gap-1" title="خروجی اکسل">
+                                <i class="fa-solid fa-file-excel text-base"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Table 1: Active Repairs List / لیست پذیرش‌های آماده و فعال -->
+            <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-4 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-3 bg-slate-50">
+                    <div class="flex items-center gap-2">
+                        <h3 class="font-bold text-slate-800 text-sm">دستورکارهای فعال در تعمیرگاه</h3>
+                        <span class="text-xs text-slate-500">(لیست ۱۰ مورد اخیر)</span>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <div class="relative">
+                            <input type="text" placeholder="جستجو پلاک، راننده..." class="text-xs p-2 pr-7 border border-slate-300 rounded-md focus:outline-none w-48">
+                            <i class="fa-solid fa-search absolute right-2.5 top-2.5 text-slate-400 text-xs"></i>
+                        </div>
+                        <select class="text-xs p-2 border border-slate-300 rounded-md focus:outline-none">
+                            <option value="">همه وضعیت‌ها</option>
+                            <option value="در حال تعمیر">در حال تعمیر</option>
+                            <option value="منتظر قطعه">منتظر قطعه</option>
+                            <option value="آماده تحویل">آماده تحویل</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right text-xs">
+                        <thead class="bg-slate-100 text-slate-700 border-b border-slate-200 font-bold">
+                            <tr>
+                                <th class="p-3">شناسه پذیرش</th>
+                                <th class="p-3">خودرو / پلاک</th>
+                                <th class="p-3">واحد درخواست‌کننده</th>
+                                <th class="p-3">نوع سرویس</th>
+                                <th class="p-3">راننده</th>
+                                <th class="p-3">تاریخ پذیرش</th>
+                                <th class="p-3">وضعیت</th>
+                                <th class="p-3 text-center">عملیات مدیریت</th>
+                            </tr>
+                        </thead>
+                        <tbody id="workorder-table-body" class="divide-y divide-slate-100">
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="p-3 font-bold text-blue-900">WO-1403-902</td>
+                                <td class="p-3 font-bold">کمپرسی ده چرخ (۱۲ ع ۳۴)</td>
+                                <td class="p-3">حمل و نقل سنگین</td>
+                                <td class="p-3">تعویض دیست و صفحه + روغن موتور</td>
+                                <td class="p-3">حسین حیدری</td>
+                                <td class="p-3 dir-ltr text-right">۱۴۰۵/۰۸/۰۴</td>
+                              <td class="p-3"><span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded text-[10px]">در حال تعمیر</span></td>
+                                <td class="p-3 text-center">
+                                    <div class="flex items-center justify-center gap-1">
+                                        <button onclick="openModal('ویرایش پذیرش', 'مشخصات کد WO-1403-902')" class="bg-amber-500 hover:bg-amber-600 text-white px-2 py-1 rounded text-[11px] font-bold">ویرایش</button>
+                                        <button onclick="issueExitPass('کمپرسی ده چرخ (۱۲ ع ۳۴)', 'WO-1403-902')" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-[11px] font-bold">برگه خروج</button>
+                                        <button onclick="deleteRow(this)" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-[11px] font-bold">حذف</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="p-3 font-bold text-blue-900">WO-1403-901</td>
+                                <td class="p-3 font-bold">جرثقیل ۵۰ تن (EQ-104)</td>
+                                <td class="p-3">خط نورد گرم</td>
+                                <td class="p-3">تعمیر سیستم هیدرولیک جک‌ها</td>
+                                <td class="p-3">محمد رسولی</td>
+                                <td class="p-3 dir-ltr text-right">۱۴۰۵/۰۸/۰۳</td>
+                                <td class="p-3"><span class="bg-red-100 text-red-800 font-bold px-2 py-0.5 rounded text-[10px]">منتظر قطعه انبار</span></td>
+                                <td class="p-3 text-center">
+                                    <div class="flex items-center justify-center gap-1">
+                                        <button onclick="openModal('ویرایش پذیرش', 'مشخصات کد WO-1403-901')" class="bg-amber-500 hover:bg-amber-600 text-white px-2 py-1 rounded text-[11px] font-bold">ویرایش</button>
+                                        <button onclick="issueExitPass('جرثقیل ۵۰ تن (EQ-104)', 'WO-1403-901')" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-[11px] font-bold">برگه خروج</button>
+                                        <button onclick="deleteRow(this)" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-[11px] font-bold">حذف</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="p-3 font-bold text-blue-900">WO-1403-899</td>
+                                <td class="p-3 font-bold">تویوتا هایلوکس (۶۸ ط ۱۱)</td>
+                                <td class="p-3">تشریفات و مدیریت</td>
+                                <td class="p-3">سرویس ۵۰۰۰۰ کیلومتر و بالانس</td>
+                                <td class="p-3">علی مرادی</td>
+                                <td class="p-3 dir-ltr text-right">۱۴۰۵/۰۸/۰۳</td>
+                                <td class="p-3"><span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">آماده تحویل</span></td>
+                                <td class="p-3 text-center">
+                                    <div class="flex items-center justify-center gap-1">
+                                        <button onclick="openModal('ویرایش پذیرش', 'مشخصات کد WO-1403-899')" class="bg-amber-500 hover:bg-amber-600 text-white px-2 py-1 rounded text-[11px] font-bold">ویرایش</button>
+                                        <button onclick="issueExitPass('تویوتا هایلوکس (۶۸ ط ۱۱)', 'WO-1403-899')" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-[11px] font-bold">برگه خروج</button>
+                                        <button onclick="deleteRow(this)" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-[11px] font-bold">حذف</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+ <!-- 2. TAB: INVENTORY (انبار قطعات و تجهیزات) -->
+        <div id="tab-inventory" class="tab-content hidden space-y-6">
+            <div class="bg-white p-5 rounded-lg shadow-sm border border-slate-200">
+                <div class="flex items-center justify-between mb-4 border-b pb-3">
+                    <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-boxes-stacked text-amber-500"></i>
+                        ماژول انبار قطعات و لوازم یدکی خودرویی
+                    </h3>
+                    <div class="flex gap-2">
+                        <button onclick="openModal('ثبت ورود قطعه جدید', 'انبار مرکزی فولاد')" class="bg-emerald-600 text-white px-3 py-1.5 rounded text-xs font-bold">+ ثبت ورودی جدید</button>
+                        <button onclick="openModal('حواله خروج قطعه', 'تعمیرگاه اصلی')" class="bg-blue-900 text-white px-3 py-1.5 rounded text-xs font-bold">حواله خروج انبار</button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right text-xs">
+                        <thead class="bg-slate-100 text-slate-700 font-bold">
+                            <tr>
+                                <th class="p-3">کد کالا (SKU)</th>
+                                <th class="p-3">نام قطعه / تجهیز</th>
+                                <th class="p-3">دسته‌بندی</th>
+                                <th class="p-3">موجودی فعلی</th>
+                                <th class="p-3">حداقل سفارش</th>
+                                <th class="p-3">موقعیت انبار</th>
+                                <th class="p-3">وضعیت تامین</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr>
+                                <td class="p-3 font-mono">PRT-8821</td>
+                                <td class="p-3 font-bold">فیلتر روغن دیزل کمپرسی</td>
+                                <td class="p-3">مصرفی سنگین</td>
+                                <td class="p-3 font-bold text-emerald-600">۴۵ عدد</td>
+                                <td class="p-3">۱۰ عدد</td>
+                                <td class="p-3">قفسه A-12</td>
+                                <td class="p-3"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px]">موجود</span></td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-mono">PRT-7043</td>
+                                <td class="p-3 font-bold">پمپ هیدرولیک جرثقیل کوماتسو</td>
+                                <td class="p-3">قطعات هیدرولیک</td>
+                                <td class="p-3 font-bold text-red-600">۱ عدد</td>
+                                <td class="p-3">۳ عدد</td>
+                                <td class="p-3">قفسه C-04</td>
+                                <td class="p-3"><span class="bg-red-100 text-red-800 px-2 py-0.5 rounded text-[10px]">هشدار کسر موجودی</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+      <!-- 3. TAB: FLEET (ناوگان خودرویی کارخانه) -->
+        <div id="tab-fleet" class="tab-content hidden space-y-6">
+            <div class="bg-white p-5 rounded-lg shadow-sm border border-slate-200">
+                <h3 class="font-bold text-slate-800 text-sm mb-4 border-b pb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-truck-ramp-box text-blue-600"></i>
+                    وضعیت موقعیت و سلامت ناوگان خودرویی فعال در سایت
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="p-4 border border-slate-200 rounded-lg bg-slate-50">
+                        <div class="flex justify-between font-bold text-xs mb-2">
+                            <span>کامیون شماره ۱۰۲</span>
+                            <span class="text-emerald-600">در حال حرکت (سایت ۲)</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 mb-2">ماموریت: حمل شمش فولاد به انبار خروجی</p>
+                        <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                            <div class="bg-emerald-500 h-full w-4/5"></div>
+                        </div>
+                    </div>
+                    <div class="p-4 border border-slate-200 rounded-lg bg-slate-50">
+                        <div class="flex justify-between font-bold text-xs mb-2">
+                            <span>جرثقیل سنگین EQ-04</span>
+                            <span class="text-amber-600">در حال کار ایستگاهی</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 mb-2">ماموریت: تخلیه تجهیزات نورد</p>
+                        <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                            <div class="bg-amber-500 h-full w-2/5"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      <!-- 4. TAB: FUEL (جایگاه سوخت) -->
+        <div id="tab-fuel" class="tab-content hidden space-y-6">
+            <div class="bg-white p-5 rounded-lg shadow-sm border border-slate-200">
+                <h3 class="font-bold text-slate-800 text-sm mb-4 border-b pb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-gas-pump text-emerald-600"></i>
+                    مدیریت جایگاه سوخت اختصاصی شرکت
+                </h3>
+                <p class="text-xs text-slate-600 mb-4">ثبت نازل‌ها، سهمیه‌بندی روزانه و نظارت بر میزان سوخت‌گیری ناوگان توکاساز.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-slate-50 p-4 rounded border">
+                        <h4 class="font-bold text-xs mb-2">مخزن شماره ۱ (گازوئیل دیزل)</h4>
+                        <div class="text-2xl font-black text-slate-800">۴۵,۰۰۰ / ۶۰,۰۰۰ لیتر</div>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded border">
+                        <h4 class="font-bold text-xs mb-2">مخزن شماره ۲ (بنزین تشریفات)</h4>
+                        <div class="text-2xl font-black text-slate-800">۱۲,۰۰۰ / ۲۰,۰۰۰ لیتر</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+       <!-- 5. TAB: EV CHARGING (ایستگاه شارژ برقی) -->
+        <div id="tab-ev" class="tab-content hidden space-y-6">
+            <div class="bg-white p-5 rounded-lg shadow-sm border border-slate-200">
+                <h3 class="font-bold text-slate-800 text-sm mb-4 border-b pb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-bolt text-purple-600"></i>
+                    پایش برخط ایستگاه‌های شارژ خودرو برقی کارخانه
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+                    <div class="p-3 border border-emerald-300 bg-emerald-50 rounded">
+                        <div class="text-xs font-bold text-emerald-800">پایه شارژ ۱ (سریع)</div>
+                        <div class="text-xs text-emerald-600 mt-1">در حال شارژ (۸۵٪)</div>
+                    </div>
+                    <div class="p-3 border border-slate-200 bg-slate-50 rounded">
+                        <div class="text-xs font-bold text-slate-700">پایه شارژ ۲ (معمولی)</div>
+                        <div class="text-xs text-slate-500 mt-1">آماده به کار (خالی)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. TAB: DRIVERS (رانندگان و تشریفات) -->
+        <div id="tab-drivers" class="tab-content hidden space-y-6">
+            <div class="bg-white p-5 rounded-lg shadow-sm border border-slate-200">
+                <h3 class="font-bold text-slate-800 text-sm mb-4 border-b pb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-user-tie text-blue-900"></i>
+                    مدیریت رانندگان تشریفات و شیفت‌های کاری
+                </h3>
+                <p class="text-xs text-slate-600">لیست ماموریت‌ها و گواهینامه‌های ویژه رانندگان شرکت توکاساز.</p>
+            </div>
+        </div>
+      <!-- 7. TAB: PERSONAL (خدمات شخصی) -->
+        <div id="tab-personal" class="tab-content hidden space-y-6">
+            <div class="bg-white p-5 rounded-lg shadow-sm border border-slate-200">
+                <h3 class="font-bold text-slate-800 text-sm mb-4 border-b pb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-car-side text-amber-600"></i>
+                    پذیرش و خدمات به خودروهای شخصی پرسنل
+                </h3>
+                <p class="text-xs text-slate-600">نوبت‌دهی سرویس‌های دوره‌ای خودروهای شخصی کارمندان فولاد مبارکه.</p>
+            </div>
+        </div>
+
+        <!-- 8. TAB: FINANCIAL (گزارشات و مالی) -->
+        <div id="tab-financial" class="tab-content hidden space-y-6">
+            <div class="bg-white p-5 rounded-lg shadow-sm border border-slate-200">
+                <h3 class="font-bold text-slate-800 text-sm mb-4 border-b pb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-line text-emerald-600"></i>
+                    گزارشات جامع مالی، هزینه‌ها و درآمدها
+                </h3>
+                <p class="text-xs text-slate-600">گزارش‌گیری لحظه‌ای هزینه‌های تعمیراتی به تفکیک واحدها با خروجی اکسل و PDF.</p>
+            </div>
+        </div>
+
+        <!-- 9. TAB: USERS (مدیریت کاربران) -->
+        <div id="tab-users" class="tab-content hidden space-y-6">
+            <div class="bg-white p-5 rounded-lg shadow-sm border border-slate-200">
+                <h3 class="font-bold text-slate-800 text-sm mb-4 border-b pb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-users-gear text-slate-700"></i>
+                    سطوح دسترسی کاربران و پرسنل تعمیرگاه
+                </h3>
+                <p class="text-xs text-slate-600">تعیین دسترسی برای مکانیک‌ها، انبارداران، رانندگان و مدیران ارشد.</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal Dialog / پنجره پاپ‌آپ عمومی -->
+    <div id="custom-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full overflow-hidden border border-slate-200">
+            <div class="bg-slate-900 text-white p-4 flex justify-between items-center border-b-2 border-amber-500">
+                <h3 id="modal-title" class="font-bold text-sm">عنوان پنجره</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-times text-base"></i>
+                </button>
+            </div>
+            <div class="p-5 text-xs space-y-3" id="modal-body">
+                محتوای مدال...
+            </div>
+            <div class="bg-slate-50 p-3 flex justify-end gap-2 border-t">
+                <button onclick="closeModal()" class="bg-slate-300 hover:bg-slate-400 text-slate-800 font-bold px-4 py-1.5 rounded text-xs">تایید و بستن</button>
+            </div>
+        </div>
+    </div>
+   <!-- Notification Toast / پیام‌های شناور -->
+    <div id="toast" class="fixed bottom-5 left-5 bg-slate-900 text-white px-4 py-3 rounded-lg shadow-lg border-r-4 border-emerald-500 hidden z-50 transition-all text-xs flex items-center gap-2">
+        <i class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toast-message">عملیات با موفقیت انجام شد.</span>
+    </div>
+
+    <!-- Footer / پاورقی -->
+    <footer class="bg-slate-900 text-slate-400 text-xs py-4 border-t border-slate-800 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div>طراحی شده برای پروژه مدیریت تعمیرگاه و ناوگان شرکت توکاساز (فولاد مبارکه اصفهان)</div>
+            <div class="text-[11px] text-slate-500">نسخه ۱.۴.۰ | ماژولار و یکپارچه</div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // 1. Tab Switching Function / مدیریت تغییر تب‌ها
+        function switchTab(tabId, element) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.add('hidden'));
+
+            // Remove active class from buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(btn => {
+                btn.classList.remove('tab-active');
+                btn.classList.add('hover:bg-blue-800');
+            });
+
+            // Show current tab & activate button
+            document.getElementById(tabId).classList.remove('hidden');
+            element.classList.add('tab-active');
+            element.classList.remove('hover:bg-blue-800');
+        }
+
+        // 2. New WorkOrder Form Submission / ثبت فرم جدید در جدول
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            const vehicle = document.getElementById('vehicle-type').value;
+            const dept = document.getElementById('department').value;
+            const service = document.getElementById('service-type').value;
+            const driver = document.getElementById('driver-name').value;
+
+            const randomId = 'WO-1403-' + Math.floor(100 + Math.random() * 900);
+            const today = new Date().toLocaleDateString('fa-IR');
+
+            const tableBody = document.getElementById('workorder-table-body');
+            const newRow = document.createElement('tr');
+          newRow.className = "hover:bg-slate-50 transition bg-emerald-50/50";
+            
+            newRow.innerHTML = `
+                <td class="p-3 font-bold text-blue-900">${randomId}</td>
+                <td class="p-3 font-bold">${vehicle}</td>
+                <td class="p-3">${dept}</td>
+                <td class="p-3">${service}</td>
+                <td class="p-3">${driver}</td>
+                <td class="p-3 dir-ltr text-right">${today}</td>
+                <td class="p-3"><span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded text-[10px]">در حال تعمیر</span></td>
+                <td class="p-3 text-center">
+                    <div class="flex items-center justify-center gap-1">
+                        <button onclick="openModal('ویرایش پذیرش', 'مشخصات کد ${randomId}')" class="bg-amber-500 hover:bg-amber-600 text-white px-2 py-1 rounded text-[11px] font-bold">ویرایش</button>
+                        <button onclick="issueExitPass('${vehicle}', '${randomId}')" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-[11px] font-bold">برگه خروج</button>
+                        <button onclick="deleteRow(this)" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-[11px] font-bold">حذف</button>
+                    </div>
+                </td>
+            `;
+
+            tableBody.insertBefore(newRow, tableBody.firstChild);
+            document.getElementById('new-workorder-form').reset();
+            showToast('پذیرش جدید با کد ' + randomId + ' با موفقیت ثبت شد.');
+        }
+
+        // 3. Delete Row / حذف سطر
+        function deleteRow(button) {
+            const row = button.closest('tr');
+            row.remove();
+            showToast('سند مورد نظر با موفقیت حذف شد.');
+        }
+
+        // 4. Modal Functions / مدال پاپ‌آپ
+        function openModal(title, content) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-body').innerHTML = `<p class="text-slate-700">${content}</p><p class="text-slate-500 mt-2">این بخش به زیرسیستم ماژولار مرکزی متصل می‌باشد.</p>`;
+            document.getElementById('custom-modal').classList.remove('hidden');
+            document.getElementById('custom-modal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+            document.getElementById('custom-modal').classList.remove('flex');
+        }
+       // 5. Issue Exit Pass / صدور برگه خروج
+        function issueExitPass(vehicle, code) {
+            openModal('صدور برگه خروج سازمانی', `برگه خروج برای خودرو <strong>${vehicle}</strong> تحت شناسه پذیرش <strong>${code}</strong> صادر شد و به حراست ارسال گردید.`);
+        }
+
+        // 6. Toast Notification / نمایش پیام کوتاه
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = message;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        // 7. Export Excel Simulation
+        function exportToExcel() {
+            showToast('خروجی اکسل گزارشات تعمیرگاه آماده دانلود شد.');
+        }
+    </script>
+</body>
+</html>
+
+     
